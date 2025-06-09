@@ -31,24 +31,21 @@ const TaskDetails = () => {
   const [rateValue, setRateValue] = useState("");
   const [tabIndex, setTabIndex] = useState(0);
   const [applicants, setApplicants] = useState([]);
-  const [hasApplied, setHasApplied] = useState(false); // Track if user has applied
+  const [hasApplied, setHasApplied] = useState(false);
 
   const formRef = useRef(null);
   const navigate = useNavigate();
 
-  // Fetch task details or applicants every time tabIndex changes
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
         if (tabIndex === 0) {
-          // Fetch task details if tabIndex is 0 (Task Details tab)
           const taskRes = await UseMethods("get", "get-task-details", "", id);
           if (taskRes) {
             setTaskData(taskRes.data.data);
           }
         } else if (tabIndex === 1) {
-          // Fetch applicants if tabIndex is 1 (Applicants tab)
           const applicantsRes = await UseMethods(
             "get",
             "get-applicants",
@@ -66,11 +63,9 @@ const TaskDetails = () => {
       }
     };
 
-    // Trigger fetchData on tab change
     fetchData();
-  }, [tabIndex, id]); // Fetch data every time the tab or id changes
+  }, [tabIndex, id]);
 
-  // Check if the user has already applied
   useEffect(() => {
     const checkApplicationStatus = async () => {
       try {
@@ -86,23 +81,6 @@ const TaskDetails = () => {
     checkApplicationStatus();
   }, [id]);
 
-  const askAiSuggestion = async () => {
-    const response = await fetch("http://localhost:5000/api/ask-ai", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        prompt: `Suggest a Proposal to get this work and here the details ${taskData[0].title} and here the description
-        ${taskData[0].description} like i want to work this proposal like proper proposal 
-        at least 60 words`,
-      }),
-    });
-
-    const data = await response.json();
-    setCoverLetter(data.message);
-  };
-
   const handleSubmitApplication = async () => {
     try {
       const applicationData = {
@@ -114,7 +92,7 @@ const TaskDetails = () => {
 
       const res = await UseMethods("post", "store-proposal", applicationData);
       console.log("Task saved:", res.data);
-      setHasApplied(true); // Prevent further submissions
+      setHasApplied(true);
       alert("Task applied successfully!");
     } catch (error) {
       console.error("Error submitting application:", error);
@@ -152,14 +130,12 @@ const TaskDetails = () => {
     <div>
       <Topbar />
       <Box className="p-6 max-w-5xl mx-auto space-y-6">
-        {/* Title and CTA */}
         <Box className="flex flex-col md:flex-row justify-between md:items-center gap-4">
           <Typography variant="h4" className="text-blue-800 font-semibold">
             {task ? task.title : "Loading..."}
           </Typography>
         </Box>
 
-        {/* Tabs for switching between Task Details and Applicants */}
         <Tabs
           value={tabIndex}
           onChange={handleTabChange}
@@ -169,15 +145,13 @@ const TaskDetails = () => {
           <Tab label="Applicants" />
         </Tabs>
 
-        {/* Task Details */}
         {tabIndex === 0 && (
           <Paper elevation={1} className="p-4 rounded-lg bg-white mt-4">
-            {/* Task Info */}
             {task && (
               <Box className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div>
                   <Typography variant="body2" className="text-gray-500">
-                    💰 Budget
+                    Budget
                   </Typography>
                   <Typography variant="subtitle1" fontWeight={600}>
                     ${task.rate}
@@ -185,13 +159,7 @@ const TaskDetails = () => {
                 </div>
                 <div>
                   <Typography variant="body2" className="text-gray-500">
-                    ⚡ Priority
-                  </Typography>
-                  <Chip label={task.priority} color="primary" size="small" />
-                </div>
-                <div>
-                  <Typography variant="body2" className="text-gray-500">
-                    🕒 Posted
+                    Posted
                   </Typography>
                   <Typography variant="subtitle2">
                     {new Date(task.created_at).toLocaleString()}
@@ -200,7 +168,6 @@ const TaskDetails = () => {
               </Box>
             )}
 
-            {/* Description */}
             <Paper
               elevation={1}
               className="p-6 bg-white rounded-lg space-y-2 mt-4"
@@ -235,7 +202,6 @@ const TaskDetails = () => {
               </Paper>
             </Paper>
 
-            {/* Application Form */}
             {hasApplied ? (
               <Box className="text-center text-green-600 mt-4">
                 <Typography variant="h6">
@@ -253,9 +219,6 @@ const TaskDetails = () => {
                 >
                   Apply for this Task
                 </Typography>
-                <Button onClick={askAiSuggestion}>
-                  ✍️ AI Suggest Cover Letter
-                </Button>
 
                 <TextField
                   fullWidth
@@ -313,7 +276,6 @@ const TaskDetails = () => {
           </Paper>
         )}
 
-        {/* Applicants List */}
         {tabIndex === 1 && (
           <Paper elevation={1} className="p-6 rounded-lg bg-white mt-4">
             <Typography variant="h6" className="text-blue-700 font-semibold">
@@ -327,7 +289,6 @@ const TaskDetails = () => {
                     key={index}
                     className="mt-4 p-4 border-b border-gray-300"
                   >
-                    {/* Applicant Information */}
                     <Box className="flex items-center gap-4">
                       <Typography variant="body1" className="font-semibold">
                         {applicant.user.firstname} {applicant.user.lastname}
@@ -341,7 +302,6 @@ const TaskDetails = () => {
                       />
                     </Box>
 
-                    {/* Applicant's Proposal */}
                     <Typography variant="body2" className="text-gray-700 mt-2">
                       <strong>Proposal:</strong>
                       <div className="whitespace-pre-line">
@@ -349,19 +309,16 @@ const TaskDetails = () => {
                       </div>
                     </Typography>
 
-                    {/* Applicant's Proposed Rate */}
                     <Typography variant="body2" className="text-gray-700 mt-2">
                       <strong>Proposed Rate:</strong> {applicant.proposal_rate}{" "}
                       {applicant.proposal_currency}
                     </Typography>
 
-                    {/* Applicant's Applied Date */}
                     <Typography variant="body2" className="text-gray-500 mt-1">
                       <strong>Applied on:</strong>{" "}
                       {new Date(applicant.applied_date).toLocaleString()}
                     </Typography>
 
-                    {/* Divider */}
                     <Divider className="my-2" />
                   </Box>
                 ))}

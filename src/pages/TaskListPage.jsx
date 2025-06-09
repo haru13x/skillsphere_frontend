@@ -13,9 +13,9 @@ const TaskListPage = () => {
   };
 
   return (
-    <div>
+    <div style={{ backgroundColor: "#003050", height: "100%", position: "fixed", width: "100%" }}>
       <Topbar />
-      <div className="flex flex-col md:flex-row">
+      <div className="flex flex-col md:flex-row" style={{ height: "100%" }}>
         <TaskSidebar tasks={taskData} onSelectTask={handleTaskSelect} />
         {selectedTaskId && <TaskDetail taskId={selectedTaskId} />}
       </div>

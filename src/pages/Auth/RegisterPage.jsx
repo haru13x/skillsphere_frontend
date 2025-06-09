@@ -69,7 +69,7 @@ const RegisterPage = () => {
         className="w-full md:w-2/3 flex items-center justify-center p-8 "
         style={{ backgroundColor: "#003050" }}
       >
-        <Paper elevation={3} className="w-full md:w-2/4 p-8">
+        <Paper elevation={3} className="w-full max-w-md p-6 h-auto min-h-[300px] rounded-xl shadow-lg">
           <h2 className="text-3xl font-semibold text-gray-800 mb-6 text-center">
             Create Account
           </h2>

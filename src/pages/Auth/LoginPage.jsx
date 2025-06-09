@@ -31,11 +31,11 @@ export default function Login() {
       });
 
       if (response.data.token) {
-        const storage = rememberMe ? localStorage : sessionStorage;
+        // const storage = rememberMe ? localStorage : sessionStorage;
 
-        storage.setItem("token", response.data.token);
-        storage.setItem("user", JSON.stringify(response.data.user));
-        storage.setItem("api_token", response.data.user.api_token);
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        localStorage.setItem("api_token", response.data.user.api_token);
 
         if (rememberMe) {
           localStorage.setItem("rememberEmail", email);

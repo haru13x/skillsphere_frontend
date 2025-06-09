@@ -14,3 +14,38 @@ code {
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.delete-button {
+  color: white;
+  background: red;
+  border-radius: 5px;
+  border: none;
+  padding: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.delete-button:hover {
+  background: #bb0000;
+}
+
+.edit-button {
+  color: white;
+  background: #003754;
+  border-radius: 5px;
+  border: none;
+  padding: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.edit-button:hover {
+  background: #004b7f;
+}
+
+.buttons-container {
+  display: flex;
+  width:100%;
+  justify-content: flex-end;
+  gap: 10px;
+}
