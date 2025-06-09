@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Topbar from "../components/Navigation/Topbar";
 
-import TaskList from "../components/Task/TaskList";
+import ProjectTaskList from "../components/Task/ProjectTaskList";
 
 import { UseMethods } from "../composable/UseMethods";
 
@@ -23,7 +23,7 @@ const ProjectPage = () => {
   return (
     <div>
       <Topbar />
-      <TaskList tasks={tasks} loading={loading} />
+      <ProjectTaskList tasks={tasks} loading={loading} />
     </div>
   );
 };

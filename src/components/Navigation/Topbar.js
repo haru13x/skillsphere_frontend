@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AppBar,
   Toolbar,
@@ -11,19 +11,28 @@ import {
   Button,
   MenuItem,
 } from "@mui/material";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import ListAltIcon from "@mui/icons-material/ListAlt";
-import WorkIcon from "@mui/icons-material/Work";
-import MessageIcon from "@mui/icons-material/Message";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import logo from "../../assets/skillspherelogo.png";
 
 const Topbar = () => {
   const navigate = useNavigate();
-  const [projectMenuAnchorEl, setProjectMenuAnchorEl] = useState(null); // Menu for Projects
-  const [settingsMenuAnchorEl, setSettingsMenuAnchorEl] = useState(null); // Menu for Profile/Logout
+  const location = useLocation();
+  const [projectMenuAnchorEl, setProjectMenuAnchorEl] = useState(null);
+  const [settingsMenuAnchorEl, setSettingsMenuAnchorEl] = useState(null);
+  const [projectButtonText, setProjectButtonText] = useState("Projects");
   const user = JSON.parse(localStorage.getItem("user"));
 
-  // Open/Close Project Menu
+  useEffect(() => {
+    if (location.pathname === "/project") {
+      setProjectButtonText("My Project");
+    } else if (location.pathname === "/project/applied") {
+      setProjectButtonText("Applied Projects");
+    } else {
+      setProjectButtonText("Projects");
+    }
+  }, [location.pathname]);
+
   const handleOpenProjectMenu = (event) => {
     setProjectMenuAnchorEl(event.currentTarget);
   };
@@ -31,7 +40,6 @@ const Topbar = () => {
     setProjectMenuAnchorEl(null);
   };
 
-  // Open/Close Settings Menu
   const handleOpenSettingsMenu = (event) => {
     setSettingsMenuAnchorEl(event.currentTarget);
   };
@@ -47,54 +55,119 @@ const Topbar = () => {
 
   const handleProjectMenuClick = (route) => {
     navigate(route);
-    handleCloseProjectMenu(); // Close menu after selection
+    handleCloseProjectMenu();
+  };
+
+  const isActiveRoute = (route) => {
+    if (route === "/dashboard") return location.pathname === "/dashboard";
+    if (route === "/tasklist") return location.pathname === "/tasklist";
+    if (route === "/messages") return location.pathname === "/messages";
+    if (route === "/project" || route === "/project/applied") {
+      return location.pathname === "/project" || location.pathname === "/project/applied";
+    }
+    return false;
   };
 
   return (
-    <AppBar position="static" className="bg-white shadow-sm">
+    <AppBar position="static" sx={{ backgroundColor: "#00223D", boxShadow: 1 }}>
       <Toolbar className="flex justify-between overflow-auto">
         {/* Left Side */}
-        <Box className="flex items-center">
-          <IconButton onClick={() => navigate("/dashboard")} color="primary">
-            <DashboardIcon />
-          </IconButton>
-          <Typography
-            variant="body1"
+        <Box className="flex items-center gap-6">
+          <img src={logo} alt="SkillSphere Logo" style={{ height: 60 }} />
+
+          {/* Dashboard */}
+          <Box
             onClick={() => navigate("/dashboard")}
-            className="hidden sm:block cursor-pointer"
+            sx={{
+              cursor: "pointer",
+              color: "white",
+              padding: "8px 12px",
+              borderRadius: "4px",
+              "&:hover": {
+                boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                backgroundColor: "rgba(255,255,255,0.1)",
+              },
+              position: "relative",
+            }}
           >
-            Dashboard
-          </Typography>
+            <Typography variant="body1">Dashboard</Typography>
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: 0,
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: "80%",
+                height: "2px",
+                backgroundColor: isActiveRoute("/dashboard") ? "white" : "transparent",
+                transition: "background-color 0.3s",
+              }}
+            />
+          </Box>
 
-          <IconButton onClick={() => navigate("/tasklist")} color="primary">
-            <ListAltIcon />
-          </IconButton>
-          <Typography
-            variant="body1"
+          {/* Tasks */}
+          <Box
             onClick={() => navigate("/tasklist")}
-            className="hidden sm:block cursor-pointer"
+            sx={{
+              cursor: "pointer",
+              color: "white",
+              padding: "8px 12px",
+              borderRadius: "4px",
+              "&:hover": {
+                boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                backgroundColor: "rgba(255,255,255,0.1)",
+              },
+              position: "relative",
+            }}
           >
-            Taskbar
-          </Typography>
+            <Typography variant="body1">Tasks</Typography>
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: 0,
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: "80%",
+                height: "2px",
+                backgroundColor: isActiveRoute("/tasklist") ? "white" : "transparent",
+                transition: "background-color 0.3s",
+              }}
+            />
+          </Box>
 
-          {/* My Projects Menu */}
-          <IconButton
-            color="primary"
+          {/* Projects */}
+          <Box
             onClick={handleOpenProjectMenu}
-            aria-controls={projectMenuAnchorEl ? "project-menu" : undefined}
-            aria-haspopup="true"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              cursor: "pointer",
+              color: "white",
+              padding: "8px 12px",
+              borderRadius: "4px",
+              "&:hover": {
+                boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                backgroundColor: "rgba(255,255,255,0.1)",
+              },
+              position: "relative",
+            }}
           >
-            <WorkIcon />
-          </IconButton>
-          <Typography
-            variant="body1"
-            onClick={handleOpenProjectMenu}
-            className="hidden sm:block cursor-pointer"
-          >
-            Projects
-          </Typography>
+            <Typography variant="body1">{projectButtonText}</Typography>
+            <ArrowDropDownIcon sx={{ ml: 0.5 }} />
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: 0,
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: "80%",
+                height: "2px",
+                backgroundColor: isActiveRoute("/project") ? "white" : "transparent",
+                transition: "background-color 0.3s",
+              }}
+            />
+          </Box>
 
-          {/* Project Menu */}
           <Menu
             anchorEl={projectMenuAnchorEl}
             open={Boolean(projectMenuAnchorEl)}
@@ -103,30 +176,44 @@ const Topbar = () => {
               onMouseLeave: handleCloseProjectMenu,
             }}
           >
-            <MenuItem onClick={() => handleProjectMenuClick("/project")}>
-              My Project
-            </MenuItem>
-
-            <MenuItem
-              onClick={() => handleProjectMenuClick("/project/applied")}
-            >
+            <MenuItem onClick={() => handleProjectMenuClick("/project")}>My Project</MenuItem>
+            <MenuItem onClick={() => handleProjectMenuClick("/project/applied")}>
               Applied Projects
             </MenuItem>
           </Menu>
 
-          <IconButton onClick={() => navigate("/messages")} color="primary">
-            <MessageIcon />
-          </IconButton>
-          <Typography
-            variant="body1"
+          {/* Messages */}
+          <Box
             onClick={() => navigate("/messages")}
-            className="hidden sm:block cursor-pointer"
+            sx={{
+              cursor: "pointer",
+              color: "white",
+              padding: "8px 12px",
+              borderRadius: "4px",
+              "&:hover": {
+                boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                backgroundColor: "rgba(255,255,255,0.1)",
+              },
+              position: "relative",
+            }}
           >
-            Messages
-          </Typography>
+            <Typography variant="body1">Messages</Typography>
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: 0,
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: "80%",
+                height: "2px",
+                backgroundColor: isActiveRoute("/messages") ? "white" : "transparent",
+                transition: "background-color 0.3s",
+              }}
+            />
+          </Box>
         </Box>
 
-        {/* Right Side - User */}
+        {/* Right Side */}
         <Box className="flex items-center space-x-2">
           <Button
             variant="contained"
@@ -143,7 +230,7 @@ const Topbar = () => {
           >
             Create New Work
           </Button>
-          {/* Settings Menu */}
+
           {user && (
             <Box className="flex items-center gap-3 px-3 py-1 bg-gray-100 rounded-full shadow-sm hover:shadow-md transition duration-300">
               <Avatar
@@ -183,7 +270,6 @@ const Topbar = () => {
             </Box>
           )}
 
-          {/* Settings Menu (Profile and Logout) */}
           <Menu
             anchorEl={settingsMenuAnchorEl}
             open={Boolean(settingsMenuAnchorEl)}

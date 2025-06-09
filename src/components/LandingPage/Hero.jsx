@@ -55,7 +55,7 @@ const Hero = () => {
             </a>
           </li>
           <li>
-            <button className="btn" onClick={() => navigate("/SignIn")}>
+            <button className="btn" onClick={() => navigate("/login")}>
               Sign in
             </button>
           </li>
@@ -66,7 +66,7 @@ const Hero = () => {
           className="menu-toggle"
           onClick={() => setShowMenu((prev) => !prev)}
         >
-          ☰
+
         </div>
 
         {/* Sidebar Menu */}

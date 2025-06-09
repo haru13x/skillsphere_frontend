@@ -3,12 +3,16 @@ import {
   Box,
   Typography,
   Grid,
+  Button,
   List,
   ListItem,
-  CircularProgress,
+  CircularProgress
 } from "@mui/material";
 import { WorkOutline } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { Dialog } from '@mui/material/Dialog';
+import { DialogTitle } from '@mui/material/DialogTitle';
+import { AlignJustify } from "lucide-react";
 
 const TaskList = ({ tasks, loading }) => {
   const [filteredTasks, setFilteredTasks] = useState(tasks);
@@ -31,6 +35,10 @@ const TaskList = ({ tasks, loading }) => {
     navigate(`/task/${id}`);
   };
 
+  const editTask = (id) => {
+    navigate(`/edit/work/${id}`);
+  }
+
   return (
     <Box className="p-6" sx={{ backgroundColor: "#003754", minHeight: "100vh" }}>
       {loading ? (
@@ -38,7 +46,7 @@ const TaskList = ({ tasks, loading }) => {
           <CircularProgress />
         </Box>
       ) : (
-        <Grid container spacing={4}>
+        <Grid>
           <Grid item xs={12} md={9}>
             <List className="divide-y divide-gray-200">
               {filteredTasks.length === 0 ? (
@@ -49,7 +57,7 @@ const TaskList = ({ tasks, loading }) => {
                 filteredTasks.map((task) => (
                   <ListItem
                     key={task.id}
-                    onClick={() => goToTask(task.id)}
+                    // onClick={() => goToTask(task.id)
                     className="cursor-pointer bg-white rounded-lg p-4 mb-2"
                     sx={{
                       transition: "box-shadow 0.3s ease",
@@ -59,7 +67,7 @@ const TaskList = ({ tasks, loading }) => {
                       },
                     }}
                   >
-                    <Box>
+                    <Box onClick={() => goToTask(task.id)}>
                       <Typography
                         variant="h6"
                         className="flex items-center gap-2 text-teal-700"
@@ -73,8 +81,11 @@ const TaskList = ({ tasks, loading }) => {
                       <Typography variant="body2" className="text-gray-500">
                         {task.description ?? "No description provided."}
                       </Typography>
-                      {/* <button>Button</button> */}
                     </Box>
+                    <div className="buttons-container">
+                      <Button class="edit-button" onClick={() => editTask(task.id)}>Edit</Button>
+                      <Button class="delete-button" onClick={() => goToTask(task.id)}>Delete</Button>
+                    </div>
                   </ListItem>
                 ))
               )}

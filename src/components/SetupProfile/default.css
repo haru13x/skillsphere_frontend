@@ -3,12 +3,12 @@
 
 /* Main container */
 .account-container {
-  display: flex;
+  /* display: flex; */
   height: 100vh;
   font-family: "Inter", sans-serif;
   background-color: #003050;
   align-items: center;
-  justify-content: center;
+  /* justify-content: center; */
 }
 
 /* Back arrow for Create Account */
@@ -513,9 +513,9 @@ h2 {
 
 .category-items-wrapper {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 10px;
 }
 
 .category-item {
@@ -733,6 +733,7 @@ h2 {
   padding-right: 10px;
   color: #1e3f66;
 }
+
 .experience-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -935,3 +936,10 @@ h2 {
 .nxt-bttn:hover {
   background-color: #4b92af;
 }
+
+category-scroll-wrapper {
+  display:flex;
+  justify-content: center;
+  gap:10px;
+}
+

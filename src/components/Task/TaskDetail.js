@@ -86,10 +86,6 @@ const TaskDetail = ({ taskId }) => {
     );
   }
 
-  // if (!taskId || visibleGuidance.length === 0) {
-  //   return <Typography>Select a task to see details.</Typography>;
-  // }
-
   const handleCommentChange = (value) => {
     setComment(value);
   };
@@ -121,25 +117,53 @@ const TaskDetail = ({ taskId }) => {
   };
 
   return (
-    <div className="w-full md:w-3/4 p-4 bg-white rounded-lg">
+    <div className="w-full md:w-3/4 p-4 bg-white rounded-lg" style={{ backgroundColor: "#003050", overflowY: "scroll", height: "100vh" }}>
       <Box sx={{ mb: 3 }}>
-        <ButtonGroup variant="outlined" color="primary">
+        <ButtonGroup 
+          variant="outlined" 
+          color="primary"
+          sx={{
+            gap: "8px", // Adds space between buttons
+            "& .MuiButton-root": {
+              margin: "0 !important", // Ensures no extra margins interfere
+              borderRadius: "4px !important", // Ensures rounded corners
+            },
+          }}
+        >
           {validStatuses.map((status) => (
             <Button
               key={status}
               variant={statusFilter === status ? "contained" : "outlined"}
               onClick={() => handleStatusFilter(status)}
+              sx={{
+                backgroundColor: statusFilter === status ? "#003050" : "transparent",
+                color: statusFilter === status ? "#ffffff" : "#ffffff",
+                border: statusFilter === status ? "1px solid #003050" : "1px solid rgba(255, 255, 255, 0.5)",
+                "&:hover": {
+                  backgroundColor: statusFilter === status ? "#003050" : "rgba(255, 255, 255, 0.1)",
+                  border: statusFilter === status ? "1px solid #003050" : "1px solid rgba(255, 255, 255, 0.8)",
+                },
+                position: "relative",
+                "&::after": {
+                  content: '""',
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: statusFilter === status ? "3px" : 0,
+                  backgroundColor: "#ffffff",
+                  transition: "height 0.2s ease",
+                },
+              }}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </Button>
           ))}
         </ButtonGroup>
       </Box>
-      <Typography variant="h5" className="text-blue-800 font-semibold mb-1">
-        📌 Task Breakdown & Instructions
+      <Typography variant="h5" className="text-blue-800 font-semibold mb-1" sx={{ color: "#ffffff", paddingBottom: 2 }}>
+         Task Breakdown & Instructions
       </Typography>
-
-      {/* Filter Buttons */}
 
       <Stack spacing={3}>
         {visibleGuidance.map((item, index) => (
@@ -202,6 +226,12 @@ const TaskDetail = ({ taskId }) => {
                     size="small"
                     fullWidth
                     onClick={() => openSubmitDialog(index)}
+                    sx={{
+                      backgroundColor: "#003050",
+                      "&:hover": {
+                        backgroundColor: "#2563eb",
+                      },
+                    }}
                   >
                     Add Progress / Comment
                   </Button>

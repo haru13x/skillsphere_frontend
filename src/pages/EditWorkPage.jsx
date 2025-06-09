@@ -31,7 +31,8 @@ const skillsList = [
 
 const currencyOptions = ["USD", "EUR", "PHP", "GBP"];
 
-const AddWorkPage = () => {
+const EditWorkPage = () => {
+  const taskId = window.location.href.substring(window.location.href.lastIndexOf("/") + 1);
   const [loading, setLoading] = useState(false);
   const [work, setWork] = useState({
     title: "",
@@ -93,11 +94,11 @@ const AddWorkPage = () => {
           <Paper elevation={3} className="rounded-2xl overflow-hidden w-full">
             <Box className="bg-blue-600 text-white p-6">
               <Typography variant="h5" fontWeight="bold">
-                Post a New Project
+                Edit Project
               </Typography>
-              <Typography variant="subtitle2" color="white" mt={1}>
+              {/* <Typography variant="subtitle2" color="white" mt={1}>
                 Let freelancers know what you need done.
-              </Typography>
+              </Typography> */}
             </Box>
 
             <Box className="p-6 space-y-6 bg-white">
@@ -232,7 +233,7 @@ const AddWorkPage = () => {
                   onClick={handleSubmit}
                   className="rounded-lg px-6"
                 >
-                  {loading ? "Saving..." : "Post Project"}
+                  {loading ? "Saving..." : "Save Changes"}
                 </Button>
               </Box>
             </Box>
@@ -244,4 +245,4 @@ const AddWorkPage = () => {
   );
 };
 
-export default AddWorkPage;
+export default EditWorkPage;
