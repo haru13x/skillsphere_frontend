@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import Topbar from "../components/Navigation/Topbar";
+
 import {
   Box,
   Typography,
@@ -32,7 +33,7 @@ const TaskDetails = () => {
   const [tabIndex, setTabIndex] = useState(0);
   const [applicants, setApplicants] = useState([]);
   const [hasApplied, setHasApplied] = useState(false);
-
+const user = JSON.parse(localStorage.getItem("user"));
   const formRef = useRef(null);
   const navigate = useNavigate();
 
@@ -99,6 +100,21 @@ const TaskDetails = () => {
       alert("Failed to submit task.");
     }
   };
+const hireApplicant = async (appliedId, workId) => {
+  const payload = {
+    applied_id: appliedId,
+    work_id: workId,
+  };
+
+  const response = await UseMethods("post", "hire-applicant", payload);
+
+  if (response?.status === 201) {
+    alert("Applicant successfully hired!");
+    // Optional: update UI or state
+  } else {
+    alert("Hiring failed.");
+  }
+};
 
   const resetForm = () => {
     setCoverLetter("");
@@ -285,13 +301,17 @@ const TaskDetails = () => {
             {applicants.length > 0 ? (
               <Box>
                 {applicants.map((applicant, index) => (
+               
                   <Box
                     key={index}
                     className="mt-4 p-4 border-b border-gray-300"
                   >
+                   
                     <Box className="flex items-center gap-4">
                       <Typography variant="body1" className="font-semibold">
+                        
                         {applicant.user.firstname} {applicant.user.lastname}
+                
                       </Typography>
                       <Chip
                         label={`Status: ${
@@ -319,8 +339,21 @@ const TaskDetails = () => {
                       {new Date(applicant.applied_date).toLocaleString()}
                     </Typography>
 
-                    <Divider className="my-2" />
+                    <Divider className="my-5" />
+          {user.id === applicant.work.client_id && !applicant.work.assigned_user_id && (
+  <Button 
+    variant="contained" 
+    color="primary" 
+    sx={{ margin: 1 }}
+    onClick={() => hireApplicant(applicant.applied_id, applicant.work.id)}
+  >
+    Hire
+  </Button>
+)}
+
+
                   </Box>
+
                 ))}
               </Box>
             ) : (

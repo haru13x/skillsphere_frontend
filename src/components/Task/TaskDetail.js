@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import taskGuidance from "../../data/taskGuidance";
+import axios from "axios";
 import {
   Typography,
   Card,
@@ -18,27 +18,22 @@ import {
   CircularProgress,
   ButtonGroup,
 } from "@mui/material";
+import { UseMethods } from "../../composable/UseMethods";
 
-// Background colors based on status
+// Background & border color mappings
 const bgColors = {
-  done: "#ecfdf5", // green-50
-  ongoing: "#eff6ff", // blue-50
-  revise: "#fffbea", // yellow-50
+  done: "#ecfdf5",
+  ongoing: "#eff6ff",
+  revise: "#fffbea",
 };
-
-// Chip colors for left border
 const chipColors = {
   done: "success",
   ongoing: "info",
   revise: "warning",
 };
 
-// Function to fetch task guidance based on the task ID
-const getTaskGuidance = (taskId) => {
-  return taskGuidance[taskId];
-};
-
 const TaskDetail = ({ taskId }) => {
+  const user = JSON.parse(localStorage.getItem("user"));
   const [guidance, setGuidance] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
@@ -46,49 +41,57 @@ const TaskDetail = ({ taskId }) => {
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
-
-  const validStatuses = ["all", "done", "ongoing", "revise", "validate"];
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [newInstruction, setNewInstruction] = useState({ title: "", description: "" });
+  const [work, setWork] = useState([]);
+  const validStatuses = ["all", "done", "ongoing", "revise"];
 
   useEffect(() => {
-    const fetchedGuidance = getTaskGuidance(taskId);
-    if (fetchedGuidance) {
-      setGuidance(fetchedGuidance);
-    } else {
-      setGuidance([]);
-    }
-    setLoading(false);
+    const fetchGuidance = async () => {
+      setLoading(true);
+      try {
+        const response = await UseMethods("get", "get-instruction", "", taskId);
+        const rawData = response.data?.data || [];
+
+        const formatted = rawData.map((item) => ({
+          id: item.id,
+          step: item.title,
+          instruction: item.description,
+          deadline: item.deadline_at ?? "No deadline",
+          comment: item.comment ?? "",
+          status:
+            item.status === 1
+              ? "ongoing"
+              : item.status === 2
+              ? "done"
+              : item.status === 3
+              ? "revise"
+              : "ongoing",
+          step_order: item.step_order,
+        }));
+
+        setGuidance(formatted);
+        setWork(response.data.work)
+      } catch (error) {
+        console.error("Error fetching guidance:", error);
+        setGuidance([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGuidance();
   }, [taskId]);
 
   const handleStatusFilter = (status) => {
     if (validStatuses.includes(status)) {
       setStatusFilter(status);
-    } else {
-      alert("Invalid filter selected.");
     }
   };
 
   const visibleGuidance = guidance.filter(
     (item) => statusFilter === "all" || item.status === statusFilter
   );
-
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress size={50} color="primary" />
-      </Box>
-    );
-  }
-
-  const handleCommentChange = (value) => {
-    setComment(value);
-  };
 
   const openSubmitDialog = (index) => {
     setSelectedIndex(index);
@@ -116,20 +119,34 @@ const TaskDetail = ({ taskId }) => {
     setOpenDialog(false);
   };
 
+  const handleAddInstruction = () => {
+    const newId = guidance.length + 1;
+    const newItem = {
+      id: newId,
+      step: newInstruction.title,
+      instruction: newInstruction.description,
+      deadline: "No deadline",
+      comment: "",
+      status: "ongoing",
+      step_order: newId,
+    };
+    setGuidance((prev) => [...prev, newItem]);
+    setOpenAddDialog(false);
+    setNewInstruction({ title: "", description: "" });
+  };
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+        <CircularProgress size={50} color="primary" />
+      </Box>
+    );
+  }
+
   return (
     <div className="w-full md:w-3/4 p-4 bg-white rounded-lg" style={{ backgroundColor: "#003050", overflowY: "scroll", height: "100vh" }}>
       <Box sx={{ mb: 3 }}>
-        <ButtonGroup 
-          variant="outlined" 
-          color="primary"
-          sx={{
-            gap: "8px", // Adds space between buttons
-            "& .MuiButton-root": {
-              margin: "0 !important", // Ensures no extra margins interfere
-              borderRadius: "4px !important", // Ensures rounded corners
-            },
-          }}
-        >
+        <ButtonGroup variant="outlined" color="primary" sx={{ gap: "8px" }}>
           {validStatuses.map((status) => (
             <Button
               key={status}
@@ -137,32 +154,27 @@ const TaskDetail = ({ taskId }) => {
               onClick={() => handleStatusFilter(status)}
               sx={{
                 backgroundColor: statusFilter === status ? "#003050" : "transparent",
-                color: statusFilter === status ? "#ffffff" : "#ffffff",
-                border: statusFilter === status ? "1px solid #003050" : "1px solid rgba(255, 255, 255, 0.5)",
-                "&:hover": {
-                  backgroundColor: statusFilter === status ? "#003050" : "rgba(255, 255, 255, 0.1)",
-                  border: statusFilter === status ? "1px solid #003050" : "1px solid rgba(255, 255, 255, 0.8)",
-                },
-                position: "relative",
-                "&::after": {
-                  content: '""',
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  height: statusFilter === status ? "3px" : 0,
-                  backgroundColor: "#ffffff",
-                  transition: "height 0.2s ease",
-                },
+                color: "#ffffff",
+                border: statusFilter === status ? "1px solid #003050" : "1px solid rgba(255,255,255,0.5)",
               }}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </Button>
           ))}
         </ButtonGroup>
+ {user.id === work.client_id && (
+        <Button
+          variant="contained"
+          sx={{ marginLeft: 2, backgroundColor: "#10b981" }}
+          onClick={() => setOpenAddDialog(true)}
+        >
+          ➕ Add Instruction
+        </Button>
+    )}
       </Box>
-      <Typography variant="h5" className="text-blue-800 font-semibold mb-1" sx={{ color: "#ffffff", paddingBottom: 2 }}>
-         Task Breakdown & Instructions
+
+      <Typography variant="h5" sx={{ color: "#ffffff", pb: 2 }}>
+        Task Breakdown & Instructions
       </Typography>
 
       <Stack spacing={3}>
@@ -184,54 +196,32 @@ const TaskDetail = ({ taskId }) => {
             <CardContent>
               <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
-                  <Stack spacing={1}>
-                    <Box
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="space-between"
-                      flexWrap="wrap"
-                      gap={1}
-                    >
-                      <Typography fontWeight={600} fontSize={14}>
-                        {index + 1}. {item.step}
-                      </Typography>
-
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{ fontSize: "0.75rem", whiteSpace: "nowrap" }}
-                      >
-                        Deadline: <strong>{item.deadline}</strong>
-                      </Typography>
-                    </Box>
-
-                    <Box
-                      sx={{
-                        backgroundColor: "#f8fafc",
-                        borderRadius: 1,
-                        padding: 1,
-                        fontSize: 13,
-                        borderLeft: "4px solid #94a3b8",
-                        color: "#334155",
-                      }}
-                    >
-                      {item.instruction}
-                    </Box>
-                  </Stack>
+                  <Typography fontWeight={600} fontSize={14}>
+                    {index + 1}. {item.step}
+                  </Typography>
+                  <Typography variant="caption">
+                    Deadline: <strong>{item.deadline}</strong>
+                  </Typography>
+                  <Box
+                    sx={{
+                      backgroundColor: "#f8fafc",
+                      borderRadius: 1,
+                      p: 1,
+                      mt: 1,
+                      fontSize: 13,
+                      borderLeft: "4px solid #94a3b8",
+                      color: "#334155",
+                    }}
+                  >
+                    {item.instruction}
+                  </Box>
                 </Grid>
-
                 <Grid item xs={12} md={6}>
                   <Button
                     variant="contained"
-                    size="small"
                     fullWidth
                     onClick={() => openSubmitDialog(index)}
-                    sx={{
-                      backgroundColor: "#003050",
-                      "&:hover": {
-                        backgroundColor: "#2563eb",
-                      },
-                    }}
+                    sx={{ backgroundColor: "#003050" }}
                   >
                     Add Progress / Comment
                   </Button>
@@ -242,13 +232,8 @@ const TaskDetail = ({ taskId }) => {
         ))}
       </Stack>
 
-      {/* Modal Dialog */}
-      <Dialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        maxWidth="sm"
-        fullWidth
-      >
+      {/* Submit Dialog */}
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
         <DialogTitle>✅ Submit Progress</DialogTitle>
         <DialogContent dividers>
           {selectedIndex !== null && (
@@ -256,36 +241,54 @@ const TaskDetail = ({ taskId }) => {
               <Typography variant="subtitle2" gutterBottom>
                 Step: <strong>{visibleGuidance[selectedIndex].step}</strong>
               </Typography>
-              <Typography variant="body2" gutterBottom>
-                Comment:
-              </Typography>
               <TextField
                 label="Your Progress / Comment"
                 multiline
                 rows={3}
                 fullWidth
-                size="small"
                 value={comment}
-                onChange={(e) => handleCommentChange(e.target.value)}
+                onChange={(e) => setComment(e.target.value)}
               />
               <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={markDone}
-                    onChange={(e) => setMarkDone(e.target.checked)}
-                  />
-                }
+                control={<Checkbox checked={markDone} onChange={(e) => setMarkDone(e.target.checked)} />}
                 label="Mark as Done"
               />
             </>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)} color="inherit">
-            Cancel
-          </Button>
+          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
           <Button variant="contained" onClick={handleConfirmSubmit}>
-            Confirm Submit
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Add Instruction Dialog */}
+      <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>➕ Add New Instruction</DialogTitle>
+        <DialogContent dividers>
+          <TextField
+            label="Instruction Title"
+            fullWidth
+            margin="dense"
+            value={newInstruction.title}
+            onChange={(e) => setNewInstruction({ ...newInstruction, title: e.target.value })}
+          />
+          <TextField
+            label="Instruction Description"
+            fullWidth
+            margin="dense"
+            multiline
+            rows={3}
+            value={newInstruction.description}
+            onChange={(e) => setNewInstruction({ ...newInstruction, description: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenAddDialog(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleAddInstruction}>
+            Add
           </Button>
         </DialogActions>
       </Dialog>
