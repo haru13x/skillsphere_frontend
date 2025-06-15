@@ -183,7 +183,7 @@ const Topbar = () => {
           </Menu>
 
           {/* Messages */}
-          <Box
+          {/* <Box
             onClick={() => navigate("/messages")}
             sx={{
               cursor: "pointer",
@@ -210,7 +210,7 @@ const Topbar = () => {
                 transition: "background-color 0.3s",
               }}
             />
-          </Box>
+          </Box> */}
         </Box>
 
         {/* Right Side */}
