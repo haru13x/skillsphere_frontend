@@ -163,6 +163,11 @@ const hireApplicant = async (appliedId, workId) => {
 
         {tabIndex === 0 && (
           <Paper elevation={1} className="p-4 rounded-lg bg-white mt-4">
+             {user?.id === task?.client_id && (
+              <div className="buttons-container">
+                      <Button class="edit-button" >Edit</Button>
+                      <Button class="delete-button" >Delete</Button>
+                    </div>)}
             {task && (
               <Box className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div>

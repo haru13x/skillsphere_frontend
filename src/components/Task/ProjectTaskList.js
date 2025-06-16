@@ -57,6 +57,7 @@ const TaskList = ({ tasks, loading }) => {
                 filteredTasks.map((task) => (
                   <ListItem
                     key={task.id}
+                    onClick={() => goToTask(task.id)}
                     // onClick={() => goToTask(task.id)
                     className="cursor-pointer bg-white rounded-lg p-4 mb-2"
                     sx={{
@@ -82,10 +83,7 @@ const TaskList = ({ tasks, loading }) => {
                         {task.description ?? "No description provided."}
                       </Typography>
                     </Box>
-                    <div className="buttons-container">
-                      <Button class="edit-button" onClick={() => editTask(task.id)}>Edit</Button>
-                      <Button class="delete-button" onClick={() => goToTask(task.id)}>Delete</Button>
-                    </div>
+                  
                   </ListItem>
                 ))
               )}
